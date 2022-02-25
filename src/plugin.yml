@@ -1,0 +1,5 @@
+name: Analyzer
+author: AEndrix
+description: Analizzatore di informazioni
+version: 1.0.1
+main: it.kayes.analyzer.Main
