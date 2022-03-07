@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Server Analyzer</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<div style="height: 4000px; width: 7000px;">
+    <canvas id="myChart" width="200" height="200"></canvas>
+</div>
+<p id="sos"></p>
+<script>
+    let noStaff = [];
+    let dateStaff = new Map();
+    let datePlayers = new Map();
+    let onlineMinutes = new Map();
+    var newPlayers = 1;
+
+    function readTextFile(file, callback) {
+
+        var rawFile = new XMLHttpRequest();
+        rawFile.overrideMimeType("application/json");
+        rawFile.open("GET", file, false);
+        rawFile.onreadystatechange = function () {
+            if (rawFile.readyState === 4 && rawFile.status == "200") {
+                callback(rawFile.responseText);
+            }
+        }
+        rawFile.send(null);
+    }
+
+    var data;
+    var str = "eee";
+
+    //usage:
+    readTextFile("Vanilla/1.3.2022.json", function(text){
+        data = JSON.parse(text);
+        for (var i = 0; i<data.noStaff.length; i++)
+            noStaff[i] = data.noStaff[i];
+        var daSt = Object.entries(data.dateStaff);
+        for (var i = 0; i<daSt.length; i++) {
+            var arr = daSt[i].toString().split(',');
+            dateStaff.set(arr[0], arr[1]);
+        }
+        daSt = Object.entries(data.datePlayers);
+        for (var i = 0; i<daSt.length; i++) {
+            var arr = daSt[i].toString().split(',');
+            var min = arr[0].split(':');
+            datePlayers.set(Number(min[0]*60)+Number(min[1]), arr[1]);
+        }
+        daSt = Object.entries(data.onlineMinutes);
+        for (var i = 0; i<daSt.length; i++) {
+            var arr = daSt[i].toString().split(',');
+            onlineMinutes.set(arr[0], arr[1]);
+        }
+        newPlayers = data.newPlayers;
+
+    });
+
+    var xyValues = [];
+    var xValues = [];
+    var yValues = [];
+
+    var i = 0;
+
+    datePlayers.forEach((values, keys) => {
+       //console.log(keys);
+    });
+
+    while (i<1440) {
+        //xyValues.push({x:i, y: datePlayers.get(i)});
+
+        xValues.push(i);
+        yValues.push(datePlayers.get(i));
+
+        i++;
+    }
+    xyValues.push({x:9, y:Math.log10(2)});
+    new Chart("myChart", {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [{
+                fill: false,
+                lineTension: 0,
+                backgroundColor: "rgba(0,0,255,1.0)",
+                borderColor: "rgba(0,0,255,0.1)",
+                data: yValues
+            }]
+        },
+        options: {
+            legend: {display: false},
+            scales: {
+                xAxes: [{ticks: {min: 0, max:1440}}],
+                yAxes: [{ticks: {min: 0, max:0}}],
+            }
+        }
+    });
+
+</script>
+</body>
+</html>
